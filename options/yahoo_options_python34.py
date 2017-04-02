@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import urllib.request, urllib.error, urllib.parse
 import time
 from random import randrange

@@ -10,14 +10,23 @@
 # db_name = 'russell3000.db'
 #
 # with RussellHandler(path_to_db, db_name) as obj:
-# 	gen = obj.initDB()
+# 	gen = obj.regUpdate()
 # print('Done')
 
 ## SPX FROM google
-from spxhandler import SpxHandler
-path_to_db = '/media/jevjev/FC5891D85891924E/FINDB'
-db_name = 'spxgoogle.db'
+# from spxhandler import SpxHandler
+# path_to_db = '/media/jevjev/FC5891D85891924E/FINDB'
+# db_name = 'spxgoogle.db'
+#
+# with SpxHandler(path_to_db, db_name) as obj:
+# 	obj.regUpdate(day=31)
+# print('Done')
 
-with SpxHandler(path_to_db, db_name) as obj:
+## ETF FROM google
+from etfhandler import EtfHandler
+path_to_db = "/media/jevjev/FC5891D85891924E/FINDB"
+db_name = "etfgoogle.db"
+
+with EtfHandler(path_to_db, db_name) as obj:
 	obj.initDB()
 print('Done')

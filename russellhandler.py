@@ -111,8 +111,9 @@ class RussellHandler(SqlHandler):
         total_up = 0
         if custom_update == None:
             for chunk in chunks(getCurrentHoldings(self.path), 300): # can change the chunks for memory
-                print(chunk)
+                # print(chunk)
                 total_up += downloadAndUpdate(chunk, start, end, self.con)
+                self.logger.info('Uploaded {}'.format(total_up))
         else:
             for chunk in chunks(custom_update, 300): # can change the chunks for memory
                 print(chunk)

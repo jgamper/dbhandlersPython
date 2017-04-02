@@ -91,7 +91,7 @@ class SqlHandler(metaclass=ABCMeta):
         Returns the date.as datetime.datetime object
         """
         self.logger.info('Retrieving the latest date for {} in database'.format(table_name))
-        self.cursor.execute('SELECT max(Date) FROM {}'.format(table_name))
+        self.cursor.execute("SELECT max(Date) FROM '{}'".format(table_name))
         return datetime.datetime.strptime(self.cursor.fetchone()[0], "%Y-%m-%d %H:%M:%S")
 
     def getFirstDate(self, table_name):
@@ -101,7 +101,7 @@ class SqlHandler(metaclass=ABCMeta):
         Returns the date.as datetime.datetime object
         """
         self.logger.info('Retrieving the first date for {} in database'.format(table_name))
-        self.cursor.execute('SELECT min(Date) FROM {}'.format(table_name))
+        self.cursor.execute("SELECT min(Date) FROM '{}'".format(table_name))
         return datetime.datetime.strptime(self.cursor.fetchone()[0], "%Y-%m-%d %H:%M:%S")
 
     def getLastRow(self, table_name):

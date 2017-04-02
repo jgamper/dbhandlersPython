@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 from getgoogledata import getUsEtf
 import pandas.io.sql as pdsql
 import time
+import random
+from datetime import datetime
 # list of ETFS FOR SpxHandler object
 the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
                    "QQQ",  # PowerShares QQQ Trust Series
@@ -12,7 +14,6 @@ the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
                    "IWB",  # IShares Russell 1000
                    "IWM",  # IShares Russell 2000 (Small to Mid)
                    "IWV",  # IShares Russell 3000 (Entire Mkt)
-                   "EZU",  # IShares MSCI Eurozone
                    "EFA",  # IShares MSCI EAFE (Dev markets outside US&Canda)
                    "EEM",  # IShares MSCI Emerging Mkts
                    "BKF",  # IShares MSCI BRIC
@@ -24,8 +25,7 @@ the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
                    "ECH",  # IShares MSCI Chile Capped
                    "EIDO", # IShares MSCI Indonesia
                    "EIRL", # IShares MSCI Ireland
-                   "EIS",  # IShares MSCI EIS
-                   "ENZL", # IShares MSCI New Zealand
+                   "EIS",  # IShares MSCI Israel
                    "EPHE", # IShares MSCI Philippines
                    "EPOL", # IShares MSCI Poland Capped
                    "EPU",  # IShares MSCI All Peru Capped
@@ -51,14 +51,12 @@ the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
                    "EZA",  # IShares MSCI South Africa
                    "THD",  # IShares MSCI Thailand Capped
                    "TUR",  # IShares MSCI Turkey
-                   "INDA", # Ishares MSCI India
-                   "MCHI", # IShares MSCI China
                    "IAU",  # IShares MSCI Gold Trust
                    "SLV",  # IShares Silver Trust
                    "GDX",  # VanEck Vectors Gold Miners
                    "USO",  # United States Oil Fund
                    "DBA",  # PowerShares Agriculture Fund
-                   "DBB",  # PowerShares
+                   "DBB",  # PowerShares Base Metals
                    "GSG",  # IShaeres S&P GSCI Commodity Index
                    "XLB",  # Materials Select Sector SPDR
                    "XLE",  # Energy Select Sector SPDR
@@ -74,7 +72,6 @@ the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
                    "IEI",  # 3-7 Year Treasury Bond
                    "IEF",  # 7-10 Year Treasury Bond
                    "TLH",  # 10-20 Year Treasury Bond
-                   "TLT",  # 20+ Year Treasury Bond
                    "TIP",  # TIPS Bond
                    "LQD",  # Invest Grade Corp Bond
                    "HYG",  # High Yield Bond
@@ -96,9 +93,9 @@ the_large_etfs = [ "SPY",  # SPDR S&P 500 ETF Trust
 class EtfHandler(SqlHandler):
 
     def __init__(self, path_to_db, db_name):
-        continue
+        super(EtfHandler, self).__init__(path_to_db, db_name)
 
-    def regUpdate():
+    def regUpdate(self, day=datetime.now().day):
         """
         Method to update the database from the last Date entry in the database
         """
@@ -106,28 +103,30 @@ class EtfHandler(SqlHandler):
         tickers = self.getTables()
         for ticker in tickers:
                 # get latest date
+                self.logger.info('Downloading this stock {}'.format(ticker))
                 date = self.getLatestDate(ticker)
-                data = getUsEtf(ticker, 60, 80)
-                sleep_time =  random.randint(10, 80)
-                self.logger.info('Sleeping for: {} seconds'.format(sleep_time))
-                time.sleep(sleep_time)# so google doesnt get mad
-                # append data only past the last Date value in DB
-                date = pd.DatetimeIndex([date])[0]
-                data = data[data['Date'] > date]
-                pdsql.to_sql(data, name = ticker, con = self.con, index=False, if_exists='append')
-                self.logger.info('Upgraded this stock {}'.format(ticker))
-                time.sleep(5) # so google doesnt get mad
+                if date.day != day:
+                    data = getUsEtf(ticker, 60, 4)
+                    sleep_time =  random.randint(10, 80)
+                    self.logger.info('Sleeping for: {} seconds'.format(sleep_time))
+                    time.sleep(sleep_time)# so google doesnt get mad
+                    # append data only past the last Date value in DB
+                    date = pd.DatetimeIndex([date])[0]
+                    data = data[data['Date'] > date]
+                    pdsql.to_sql(data, name = ticker, con = self.con, index=False, if_exists='append')
+                    self.logger.info('Uploaded this stock {}, starting this date {}'.format(ticker, date))
+                self.logger.info('Already updated {}'.format(ticker))
         self.logger.info('Completed regUpdate')
 
-    def initDB():
+    def initDB(self):
         """
         Method to populate spx.db for the first time
         """
-        self.logger.info('Populating spx.db for the first time')
+        self.logger.info('Populating etf.db for the first time')
         # Get current holdings of the SPX
         tickers = the_large_etfs
         for ticker in tickers:
-            data = getUsEtf(ticker, 60, 80)
+            data = getUsEtf(ticker, 60, 4)
             pdsql.to_sql(data, name = ticker, con = self.con, index=False, if_exists='append')
             self.logger.info('Uploaded this stock {}'.format(ticker))
             sleep_time =  random.randint(10, 80)

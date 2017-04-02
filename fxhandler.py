@@ -31,7 +31,7 @@ class FxHandler(SqlHandler):
     def __init__(self, path_to_db, db_name):
         continue
 
-    def regUpdate():
+    def regUpdate(self):
         """
         Method to update the database from the last Date entry in the database
         """
